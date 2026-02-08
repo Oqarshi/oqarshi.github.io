@@ -1,0 +1,48 @@
+1) Check the request origin:
+   - Get the "Origin" header from the incoming request.
+   - Only allow requests from "https://oqarshi.github.io".
+   - If the origin is not allowed, return 403 Unauthorized.
+   - If the origin header is malformed, return 400 Bad Origin header.
+
+2) Handle CORS preflight (OPTIONS) requests:
+   - If the method is OPTIONS, return a response with:
+       * Access-Control-Allow-Origin set to the request origin (or "*" if missing)
+       * Access-Control-Allow-Methods: GET, OPTIONS
+       * Access-Control-Allow-Headers: Content-Type
+       * Vary: Origin
+
+3) Get the placeId from query parameters:
+   - Parse the request URL.
+   - Get "placeid" from the search parameters.
+   - If missing, return 400 with JSON: { error: "Missing placeid parameter" }
+
+4) Fetch universe ID from Roblox API:
+   - Send GET request to: https://apis.roblox.com/universes/v1/places/{placeId}/universe
+   - If fetch fails, return JSON with error and corresponding status code.
+   - If universeId is missing, return 404 with error: "Invalid place ID or game not found"
+
+5) Fetch game info and thumbnail in parallel:
+   - Send GET request to Roblox games API: https://games.roblox.com/v1/games?universeIds={universeId}
+   - Send GET request to Roblox thumbnails API: https://thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds={universeId}&countPerUniverse=1&defaults=true&size=768x432&format=Png&isCircular=false
+
+6) Handle rate limits:
+   - If either API returns 429, respond with JSON { error: "rate_limited", message: "Rate limited by Roblox API" } and status 429
+
+7) Handle fetch errors:
+   - If either request fails, return 500 with JSON { error: "Failed to fetch game information" }
+
+8) Make sure game info data is good:
+   - If no game info data is returned, return 404 with JSON { error: "Game information not available" }
+
+9) Prepare final response:
+   - Extract thumbnail URL from thumbnail API response
+   - Extract game info from games API response
+   - Return JSON with structure:
+       {
+         thumbnail: <image URL or null>,
+         gameInfo: <game info object>
+       }
+   - Include CORS headers to allow the original request origin
+
+10) unexpected errors:
+   - If any error occurs, return 500 with JSON { error: "Server error: <error message>" }

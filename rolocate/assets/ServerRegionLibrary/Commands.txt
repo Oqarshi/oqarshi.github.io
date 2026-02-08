@@ -1,0 +1,2 @@
+Copy the data: copy(localStorage.getItem("unknownIPs"));
+Delete the data: localStorage.removeItem("unknownIPs");

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Joining Roblox Game...</title>
+    <link rel="icon" href="rolocate/assets/logo.svg" type="image/svg+xml">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #1b1b1f;
+            background-image:
+              radial-gradient(circle at 15px 15px, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+            background-size: 30px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 80px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body.mobile-mode {
+            padding: 10px;
+            padding-top: 70px;
+        }
+
+        nav {
+            background-color: rgba(34, 34, 38, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body.mobile-mode nav {
+            padding: 10px 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.mobile-mode .nav-container {
+            padding: 0 15px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #dc2626;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        body.mobile-mode .logo {
+            font-size: 1.4rem;
+            gap: 8px;
+        }
+
+        .logo-text-underline {
+            color: #ef4444;
+            position: relative;
+        }
+
+        .logo-text-underline::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            left: 0;
+            bottom: -2px;
+            background-color: #ef4444;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.2s ease;
+        }
+
+        .logo-text-underline:hover::after {
+            transform: scaleX(1);
+        }
+
+        .logo-svg {
+            width: 32px;
+            height: 32px;
+            border-radius: 5px;
+        }
+
+        body.mobile-mode .logo-svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background: #252529;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+
+        body.mobile-mode .container {
+            max-width: 100%;
+            border-radius: 12px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .thumbnail-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            background: #1e1e22;
+        }
+
+        body.mobile-mode .thumbnail-container {
+            height: 200px;
+        }
+
+        .game-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .game-thumbnail.loaded {
+            display: block;
+        }
+
+        .thumbnail-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, #252529 0%, transparent 100%);
+        }
+
+        .thumbnail-placeholder {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #c19a6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        body.mobile-mode .spinner {
+            width: 30px;
+            height: 30px;
+            border-width: 2px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .content {
+            padding: 32px;
+        }
+
+        body.mobile-mode .content {
+            padding: 20px;
+        }
+
+        .game-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #e5e5e5;
+            margin-bottom: 0;
+            line-height: 1.3;
+            letter-spacing: -0.5px;
+        }
+
+        body.mobile-mode .game-title {
+            font-size: 20px;
+        }
+
+        .game-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        body.mobile-mode .game-stats {
+            margin-top: 16px;
+            gap: 6px;
+        }
+
+        .stat-alt {
+            flex: 1 1 120px;
+            background: rgba(236, 230, 210, 0.08);
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(181, 101, 29, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        body.mobile-mode .stat-alt {
+            flex: 1 1 calc(50% - 3px);
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
+
+        .stat-alt::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #b5651d, transparent);
+            opacity: 0.7;
+        }
+
+        .stat-value-alt {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f1e9d2;
+            display: block;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+
+        body.mobile-mode .stat-value-alt {
+            font-size: 16px;
+        }
+
+        .stat-label-alt {
+            font-size: 10px;
+            font-weight: 700;
+            color: #dfd1b1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        body.mobile-mode .stat-label-alt {
+            font-size: 9px;
+            letter-spacing: 0.5px;
+        }
+
+        .status-section-alt {
+            background: rgba(245, 240, 220, 0.06);
+            padding: 22px;
+            border-radius: 12px;
+            border: 1px solid rgba(181, 101, 29, 0.15);
+            margin-top: 24px;
+        }
+
+        body.mobile-mode .status-section-alt {
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 16px;
+        }
+
+        .status-title-alt {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f1e9d2;
+            margin-bottom: 6px;
+        }
+
+        body.mobile-mode .status-title-alt {
+            font-size: 16px;
+        }
+
+        .status-message-alt {
+            font-size: 13px;
+            color: #dfd1b1;
+            margin-bottom: 16px;
+        }
+
+        body.mobile-mode .status-message-alt {
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-alt {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        body.mobile-mode .progress-bar-alt {
+            height: 5px;
+        }
+
+        .progress-fill-alt {
+            height: 100%;
+            background: linear-gradient(90deg, #c19a6b, #b5651d);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .countdown-text-alt {
+            font-size: 13px;
+            font-weight: 600;
+            color: #dfd1b1;
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        body.mobile-mode .countdown-text-alt {
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .countdown-text-alt::before {
+            content: '⏱';
+        }
+
+        .status-section-critical {
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-color: rgba(239, 68, 68, 0.4) !important;
+        }
+
+        .status-title-critical {
+            color: #f87171 !important;
+        }
+
+        .status-section-warning {
+            background: rgba(251, 191, 36, 0.1) !important;
+            border-color: rgba(251, 191, 36, 0.4) !important;
+        }
+
+        .status-title-warning {
+            color: #fbbf24 !important;
+        }
+
+        .fallback-button {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            background: #b27c39;
+            color: white;
+            font: 600 15px 'JetBrains Mono', monospace;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background 0.2s;
+        }
+
+        .fallback-button:hover {
+            background: #ae7228;
+        }
+
+        .fallback-button:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 600px) {
+            .content { padding: 24px; }
+            .game-title { font-size: 22px; }
+            .stat-alt { flex: 1 1 110px; padding: 12px 10px; }
+            .stat-value-alt { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <img class="logo-svg" src="rolocate/assets/logo.svg" alt="RoLocate Logo">
+                <span class="logo-text-underline">RoLocate</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="thumbnail-container">
+            <div class="thumbnail-placeholder" id="thumbnailPlaceholder">
+                <div class="spinner"></div>
+            </div>
+            <img class="game-thumbnail" id="gameThumbnail" alt="Game Thumbnail">
+            <div class="thumbnail-overlay"></div>
+        </div>
+
+        <div class="content">
+            <h1 class="game-title" id="gameTitle">Loading…</h1>
+
+            <div class="game-stats" id="gameStats" style="display: none;"></div>
+
+            <div class="status-section-alt" id="statusSection">
+                <div class="status-title-alt" id="statusTitle">Preparing to launch…</div>
+                <div class="status-message-alt" id="statusMessage">Getting game ready</div>
+                <div class="progress-bar-alt">
+                    <div class="progress-fill-alt" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="countdown-text-alt" id="countdownText">Time remaining: 3s</div>
+            </div>
+
+            <button id="fallbackButton" class="fallback-button">Click here if the Roblox app did not open</button>
+        </div>
+    </div>
+
+    <script>
+        function getQueryParam(param) {
+            return new URLSearchParams(window.location.search).get(param);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function formatDate(isoString) {
+            const d = new Date(isoString);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        const escapeHtmlnoxssattackvectors = (text) => {
+            const temp = document.createElement('div');
+            temp.textContent = text;
+            return temp.innerHTML;
+        };
+
+        function notifications(message, type = 'info', emoji = '', duration = 3000) {
+            if (!document.getElementById('toast-styles')) {
+                const style = document.createElement('style');
+                style.id = 'toast-styles';
+                style.innerHTML = `
+            @keyframes slideIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+            @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+            @keyframes shrink { from { width: 100%; } to { width: 0%; } }
+
+            #toast-container {
+                position: fixed; top: 20px; right: 20px; z-index: 999999999999999999;
+                display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+            }
+
+            .toast {
+                background: #2d2d2d; color: #e8e8e8; padding: 12px 16px; border-radius: 8px;
+                font: 500 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                min-width: 280px; max-width: 400px; border: 1px solid rgba(255,255,255,0.15);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25); animation: slideIn 0.3s ease-out;
+                pointer-events: auto; position: relative; overflow: hidden; will-change: transform;
+            }
+
+            .toast.removing { animation: slideOut 0.3s ease-in forwards; }
+            .toast:hover { background: #373737; }
+
+            .toast-content { display: flex; align-items: center; gap: 10px; }
+            .toast-icon { width: 16px; height: 16px; flex-shrink: 0; }
+            .toast-emoji { font-size: 16px; flex-shrink: 0; }
+            .toast-message { flex: 1; line-height: 1.4; white-space: pre-wrap; }
+
+            .toast-close {
+                position: absolute; top: 4px; right: 6px; width: 20px; height: 20px;
+                cursor: pointer; opacity: 0.6; display: flex; align-items: center;
+                justify-content: center; border-radius: 4px; transition: opacity 0.2s;
+            }
+            .toast-close:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+            .toast-close::before, .toast-close::after {
+                content: ''; position: absolute; width: 10px; height: 1px; background: #ccc;
+            }
+            .toast-close::before { transform: rotate(45deg); }
+            .toast-close::after { transform: rotate(-45deg); }
+
+            .progress-bar {
+                position: absolute; bottom: 0; left: 0; height: 2px;
+                background: rgba(255,255,255,0.25); animation: shrink linear forwards;
+            }
+
+            .toast.success { border-left: 3px solid #4CAF50; }
+            .toast.error { border-left: 3px solid #F44336; }
+            .toast.warning { border-left: 3px solid #FF9800; }
+            .toast.info { border-left: 3px solid #2196F3; }
+            `;
+                document.head.appendChild(style);
+            }
+
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            const validTypes = ['success', 'error', 'warning', 'info'];
+            const safeType = validTypes.includes(type) ? type : 'info';
+            toast.className = `toast ${safeType}`;
+
+            const icons = {
+                success: '<svg width="16" height="16" fill="none" stroke="#4CAF50" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>',
+                error: '<svg width="16" height="16" fill="none" stroke="#F44336" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+                warning: '<svg width="16" height="16" fill="none" stroke="#FF9800" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01"/></svg>',
+                info: '<svg width="16" height="16" fill="none" stroke="#2196F3" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+            };
+
+            const safeMessage = escapeHtmlnoxssattackvectors(message);
+            const safeEmoji = escapeHtmlnoxssattackvectors(emoji);
+
+            toast.innerHTML = `
+            <div class="toast-content">
+                <div class="toast-icon">${icons[safeType]}</div>
+                ${emoji ? `<span class="toast-emoji">${safeEmoji}</span>` : ''}
+                <span class="toast-message">${safeMessage.replace(/\n/g, '<br>')}</span>
+            </div>
+            <div class="toast-close"></div>
+            <div class="progress-bar" style="animation-duration: ${parseInt(duration)}ms;"></div>
+        `;
+
+            container.appendChild(toast);
+
+            let timeout = setTimeout(removeToast, duration);
+            const progressBar = toast.querySelector('.progress-bar');
+
+            toast.addEventListener('mouseenter', () => {
+                progressBar.style.animationPlayState = 'paused';
+                clearTimeout(timeout);
+            });
+
+            toast.addEventListener('mouseleave', () => {
+                progressBar.style.animationPlayState = 'running';
+                const remaining = (progressBar.offsetWidth / toast.offsetWidth) * duration;
+                timeout = setTimeout(removeToast, remaining);
+            });
+
+            toast.querySelector('.toast-close').addEventListener('click', removeToast);
+
+            function removeToast() {
+                clearTimeout(timeout);
+                toast.classList.add('removing');
+                setTimeout(() => toast.remove(), 300);
+            }
+
+            return {
+                remove: removeToast,
+                update: (newMessage) => {
+                    const escaped = escapeHtmlnoxssattackvectors(newMessage);
+                    toast.querySelector('.toast-message').innerHTML = escaped.replace(/\n/g, '<br>');
+                },
+                setType: (newType) => {
+                    const validType = validTypes.includes(newType) ? newType : 'info';
+                    toast.className = `toast ${validType}`;
+                    toast.querySelector('.toast-icon').innerHTML = icons[validType];
+                },
+                setDuration: (newDuration) => {
+                    clearTimeout(timeout);
+                    const safeDuration = parseInt(newDuration);
+                    progressBar.style.animation = `shrink ${safeDuration}ms linear forwards`;
+                    timeout = setTimeout(removeToast, safeDuration);
+                },
+                updateEmoji: (newEmoji) => {
+                    const emojiEl = toast.querySelector('.toast-emoji');
+                    if (emojiEl) emojiEl.textContent = escapeHtmlnoxssattackvectors(newEmoji);
+                }
+            };
+        }
+
+        const mobileMode = getQueryParam('mobilemode') === 'true';
+        if (mobileMode) {
+            document.body.classList.add('mobile-mode');
+            setTimeout(() => {
+                notifications('Click the "Open" button to launch the Roblox app.', 'success', '📱', 60000);
+                notifications('If no popup shows up to open the roblox app, try reopening the browser!', 'info', '⚠️', 60000);
+            }, 500);
+        }
+
+        async function fetchGameData() {
+            const placeId = getQueryParam('placeid');
+            if (!placeId) return null;
+
+            try {
+                const response = await fetch(`https://proxy.omednotfound.workers.dev/?placeid=${placeId}`);
+                if (!response.ok) return null;
+                return await response.json();
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function displayGameData(data) {
+            if (!data || !data.gameInfo) return;
+
+            const gi = data.gameInfo;
+
+            if (data.thumbnail) {
+                const img = document.getElementById('gameThumbnail');
+                img.src = data.thumbnail.trim();
+                img.classList.add('loaded');
+                document.getElementById('thumbnailPlaceholder').style.display = 'none';
+            }
+
+            document.getElementById('gameTitle').textContent = gi.name || 'Joining Game…';
+
+            const statsDiv = document.getElementById('gameStats');
+            statsDiv.innerHTML = `
+                <div class="stat-alt">
+                    <span class="stat-value-alt">${formatNumber(gi.playing)}</span>
+                    <span class="stat-label-alt">PLAYING</span>
+                </div>
+                <div class="stat-alt">
+                    <span class="stat-value-alt">${formatNumber(gi.visits)}</span>
+                    <span class="stat-label-alt">VISITS</span>
+                </div>
+                <div class="stat-alt">
+                    <span class="stat-value-alt">${formatNumber(gi.favoritedCount)}</span>
+                    <span class="stat-label-alt">FAVORITED</span>
+                </div>
+                <div class="stat-alt">
+                    <span class="stat-value-alt">${formatDate(gi.updated)}</span>
+                    <span class="stat-label-alt">UPDATED</span>
+                </div>
+            `;
+            statsDiv.style.display = 'flex';
+        }
+
+        function showErrorCritical(message) {
+            document.getElementById('statusTitle').textContent = 'Launch Failed';
+            document.getElementById('statusMessage').textContent = message;
+            document.getElementById('statusSection').classList.add('status-section-critical');
+            document.getElementById('statusTitle').classList.add('status-title-critical');
+            document.getElementById('countdownText').textContent = 'Redirecting…';
+
+            if (window.countdownTimer) clearInterval(window.countdownTimer);
+            setTimeout(() => window.location.href = 'https://www.roblox.com', 2500);
+        }
+
+        function showWarning(message) {
+            document.getElementById('statusMessage').textContent = message;
+            document.getElementById('statusSection').classList.add('status-section-warning');
+            document.getElementById('statusTitle').classList.add('status-title-warning');
+        }
+
+        function startCountdown(duration, onComplete) {
+            let t = duration;
+            const fill = document.getElementById('progressFill');
+            const text = document.getElementById('countdownText');
+
+            if (window.countdownTimer) clearInterval(window.countdownTimer);
+
+            window.countdownTimer = setInterval(() => {
+                const p = ((duration - t) / duration) * 100;
+                fill.style.width = `${p}%`;
+                text.textContent = `Time remaining: ${t}s`;
+                t--;
+                if (t < 0) {
+                    clearInterval(window.countdownTimer);
+                    onComplete();
+                }
+            }, 1000);
+        }
+
+        function redirectToRoblox() {
+            const placeId = getQueryParam('placeid');
+            const serverId = getQueryParam('serverid');
+
+            if (!placeId || !serverId) {
+                showErrorCritical('Invalid invite link — missing parameters.');
+                return;
+            }
+
+            document.getElementById('statusTitle').textContent = 'Launching…';
+            document.getElementById('statusMessage').textContent = 'Opening Roblox';
+            document.getElementById('countdownText').textContent = 'Please wait…';
+
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const deepLink = isMobile
+                ? `robloxmobile://placeID=${placeId}&gameInstanceId=${serverId}`
+                : `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+
+            window.location.href = deepLink;
+
+            setTimeout(() => {
+                const statusSection = document.getElementById('statusSection');
+                const fallbackButton = document.getElementById('fallbackButton');
+                statusSection.style.display = 'none';
+                fallbackButton.style.display = 'block';
+                fallbackButton.onclick = () => {
+                    notifications('Retrying Roblox launch…', 'info', '🔁', 6000);
+                    window.location.href = deepLink;
+                };
+            }, 5000);
+
+            setTimeout(() => {
+                window.location.href = `https://www.roblox.com/games/${placeId}`;
+            }, 45000); // 45 seconds
+        }
+
+        (async () => {
+            const placeId = getQueryParam('placeid');
+            const serverId = getQueryParam('serverid');
+
+            if (!placeId || !serverId) {
+                document.getElementById('gameTitle').textContent = 'Invalid Link';
+                showErrorCritical('Missing place ID or server ID.');
+                return;
+            }
+
+            let dataFetched = false;
+            try {
+                const data = await fetchGameData();
+                if (data) {
+                    displayGameData(data);
+                    dataFetched = true;
+                }
+            } catch (e) {
+                console.warn('Data fetch failed, launching anyway', e);
+            }
+
+            if (!dataFetched) {
+                showWarning('No response given by proxy, continuing to join server');
+            }
+
+            document.getElementById('statusTitle').textContent = 'Ready to Launch';
+            if (!dataFetched) {
+                document.getElementById('statusMessage').textContent = 'No response given by proxy, continuing to join server';
+            } else {
+                document.getElementById('statusMessage').textContent = 'Starting in a moment…';
+            }
+
+            startCountdown(3, redirectToRoblox);
+        })();
+    </script>
+</body>
+</html>
